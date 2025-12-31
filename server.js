@@ -20,6 +20,8 @@ app.use(express.static('public'));
 
 // Store active games
 const games = new Map();
+let waitingPlayer = null;
+let onlineCount = 0;
 
 // Generate random game ID
 function generateGameId() {
@@ -29,6 +31,10 @@ function generateGameId() {
 // Socket.io connection handling
 io.on('connection', (socket) => {
     console.log('Player connected:', socket.id);
+
+    // Track online players
+    onlineCount++;
+    io.emit('online-count', onlineCount);
     
     // Create new game
     socket.on('create-game', () => {
@@ -180,8 +186,71 @@ io.on('connection', (socket) => {
     socket.on('decline-draw', () => {
         socket.to(socket.gameId).emit('draw-declined');
     });
+
+    // Matchmaking - find opponent
+    socket.on('find-game', () => {
+        console.log('Player searching for game:', socket.id);
+        
+        if (waitingPlayer && waitingPlayer.id !== socket.id) {
+            // Found a match! Create game with waiting player
+            const gameId = generateGameId();
+            
+            games.set(gameId, {
+                id: gameId,
+                white: waitingPlayer.id,
+                black: socket.id,
+                moves: [],
+                currentPlayer: 'white',
+                status: 'playing',
+                rematchRequests: {}
+            });
+            
+            // Set up waiting player (white)
+            waitingPlayer.join(gameId);
+            waitingPlayer.gameId = gameId;
+            waitingPlayer.color = 'white';
+            
+            // Set up current player (black)
+            socket.join(gameId);
+            socket.gameId = gameId;
+            socket.color = 'black';
+            
+            // Notify both players
+            waitingPlayer.emit('game-found', {
+                gameId,
+                color: 'white',
+                message: 'Motståndare hittad! Du spelar som vit.'
+            });
+            
+            socket.emit('game-found', {
+                gameId,
+                color: 'black',
+                message: 'Motståndare hittad! Du spelar som svart.'
+            });
+            
+            console.log(`Match made! Game ${gameId}: ${waitingPlayer.id} vs ${socket.id}`);
+            
+            // Clear waiting player
+            waitingPlayer = null;
+            
+        } else {
+            // No one waiting - this player waits
+            waitingPlayer = socket;
+            socket.emit('waiting-for-opponent', {
+                message: 'Väntar på motståndare...'
+            });
+            console.log('Player waiting for match:', socket.id);
+        }
+    });
     
-    // ==================== REMATCH HANDLERS (INSIDE connection block!) ====================
+    // Cancel matchmaking search
+    socket.on('cancel-search', () => {
+        if (waitingPlayer && waitingPlayer.id === socket.id) {
+            waitingPlayer = null;
+            socket.emit('search-cancelled');
+            console.log('Player cancelled search:', socket.id);
+        }
+    });
     
     // Handle rematch request
     socket.on('request-rematch', () => {
@@ -192,7 +261,6 @@ io.on('connection', (socket) => {
             return;
         }
         
-        // Mark that this player wants rematch
         if (!game.rematchRequests) {
             game.rematchRequests = {};
         }
@@ -200,17 +268,13 @@ io.on('connection', (socket) => {
         
         console.log(`Rematch requested by ${socket.color} in game ${socket.gameId}`);
         
-        // Check if both players want rematch
         if (game.rematchRequests.white && game.rematchRequests.black) {
-            // Both want rematch - start new game with swapped colors
             const oldWhite = game.white;
             const oldBlack = game.black;
             
-            // Swap colors
             game.white = oldBlack;
             game.black = oldWhite;
             
-            // Update socket colors
             io.sockets.sockets.forEach((s) => {
                 if (s.gameId === socket.gameId) {
                     if (s.id === oldWhite) {
@@ -221,13 +285,11 @@ io.on('connection', (socket) => {
                 }
             });
             
-            // Reset game state
             game.moves = [];
             game.currentPlayer = 'white';
             game.status = 'playing';
             game.rematchRequests = {};
             
-            // Notify both players
             io.to(oldWhite).emit('rematch-started', { 
                 color: 'black',
                 message: 'Ny match! Du spelar nu som svart.'
@@ -240,7 +302,6 @@ io.on('connection', (socket) => {
             
             console.log(`Rematch started in game ${socket.gameId}`);
         } else {
-            // Notify opponent about rematch request
             socket.to(socket.gameId).emit('rematch-requested', {
                 message: 'Motståndaren vill spela igen'
             });
@@ -263,12 +324,21 @@ io.on('connection', (socket) => {
         }
     });
     
-    // ==================== END REMATCH HANDLERS ====================
-    
-    // Handle disconnect
+    // Handle disconnect (ONLY ONE handler!)
     socket.on('disconnect', () => {
         console.log('Player disconnected:', socket.id);
         
+        // Update online count
+        onlineCount--;
+        io.emit('online-count', onlineCount);
+        
+        // Remove from matchmaking queue if waiting
+        if (waitingPlayer && waitingPlayer.id === socket.id) {
+            waitingPlayer = null;
+            console.log('Waiting player disconnected, cleared from queue');
+        }
+        
+        // Handle game disconnect
         if (socket.gameId) {
             const game = games.get(socket.gameId);
             
@@ -288,7 +358,7 @@ io.on('connection', (socket) => {
         }
     });
     
-}); // ← This closes io.on('connection', ...)
+});
 
 // Start server
 const PORT = process.env.PORT || 3000;

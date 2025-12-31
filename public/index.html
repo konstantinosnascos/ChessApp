@@ -16,30 +16,40 @@
             <p id="captured-white" class="captured">Slagna vita: <span></span></p>
             <p id="captured-black" class="captured">Slagna svarta: <span></span></p>
         </section>
+        
         <!-- Multiplayer Menu -->
-<div id="multiplayer-menu" class="multiplayer-menu">
-    <h2>Flerspelarläge</h2>
-    
-    <div class="menu-section">
-        <button id="create-game-btn" class="menu-btn">Skapa nytt spel</button>
-    </div>
-    
-    <div class="menu-section">
-        <p>Eller anslut till ett spel:</p>
-        <input type="text" id="game-code-input" placeholder="Ange spelkod" maxlength="6">
-        <button id="join-game-btn" class="menu-btn">Anslut</button>
-    </div>
-    
-    <div class="menu-section">
-        <button id="local-game-btn" class="menu-btn secondary">Spela lokalt</button>
-    </div>
-</div>
+        <div id="multiplayer-menu" class="multiplayer-menu">
+            <h2>Flerspelarläge</h2>
+            
+            <div class="menu-section">
+                <button id="create-game-btn" class="menu-btn">Skapa nytt spel</button>
+            </div>
+            
+            <div class="menu-section">
+                <button id="find-game-btn" class="menu-btn matchmaking">Hitta motståndare</button>
+                <p id="queue-status" class="queue-status" style="display: none;">
+                    Söker motståndare<span class="loading-dots">...</span>
+                </p>
+                <p id="players-online" class="players-online">Spelare online: <span>0</span></p>
+            </div>
+            
+            <div class="menu-section">
+                <p>Eller anslut till ett spel:</p>
+                <input type="text" id="game-code-input" placeholder="Ange spelkod" maxlength="6">
+                <button id="join-game-btn" class="menu-btn">Anslut</button>
+            </div>
+            
+            <div class="menu-section">
+                <button id="local-game-btn" class="menu-btn secondary">Spela lokalt</button>
+            </div>
+        </div>
 
-<!-- Game Code Display -->
-<div id="game-code-display" class="game-code-display" style="display: none;">
-    <p>Spelkod: <span id="game-code"></span></p>
-    <button id="copy-code-btn">Kopiera</button>
-</div>
+        <!-- Game Code Display -->
+        <div id="game-code-display" class="game-code-display" style="display: none;">
+            <p>Spelkod: <span id="game-code"></span></p>
+            <button id="copy-code-btn">Kopiera</button>
+        </div>
+        
         <section class="chess-container" aria-label="Schackbräde">
             <!-- Row labels (8-1) -->
             <div class="row-labels">
@@ -76,15 +86,17 @@
             <button id="undo-btn">Ångra drag</button>
             <button id="flip-btn">Vänd brädet</button>
         </div>
+        
         <div id="multiplayer-controls" class="multiplayer-controls" style="display: none;">
-    <button id="resign-btn">Ge upp</button>
-    <button id="draw-btn">Erbjud remi</button>
-</div>
-<div id="game-over-menu" class="game-over-menu" style="display: none;">
-    <h3 id="game-over-message">Spelet slut</h3>
-    <button id="rematch-btn" class="menu-btn">Ny match (byt färg)</button>
-    <button id="new-game-btn" class="menu-btn secondary">Nytt spel</button>
-</div>
+            <button id="resign-btn">Ge upp</button>
+            <button id="draw-btn">Erbjud remi</button>
+        </div>
+        
+        <div id="game-over-menu" class="game-over-menu" style="display: none;">
+            <h3 id="game-over-message">Spelet slut</h3>
+            <button id="rematch-btn" class="menu-btn">Ny match (byt färg)</button>
+            <button id="new-game-btn" class="menu-btn secondary">Nytt spel</button>
+        </div>
     </main>
 
     <!-- Promotion Modal -->
@@ -107,8 +119,8 @@
             </div>
         </div>
     </div>
+    
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="script.js"></script>
-    
 </body>
 </html>

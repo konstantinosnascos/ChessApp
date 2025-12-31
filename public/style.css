@@ -52,6 +52,59 @@ h1 {
     font-size: 1.3rem;
 }
 
+/* Matchmaking styles */
+.menu-btn.matchmaking {
+    background-color: #4ecdc4;
+    color: #1a1a2e;
+    font-weight: bold;
+}
+
+.menu-btn.matchmaking:hover {
+    background-color: #5de0d7;
+}
+
+.menu-btn.matchmaking.searching {
+    background-color: #888;
+    cursor: not-allowed;
+}
+
+.queue-status {
+    color: #4ecdc4;
+    font-style: italic;
+    margin-top: 10px;
+}
+
+.loading-dots {
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+}
+
+.players-online {
+    color: #888;
+    font-size: 0.9rem;
+    margin-top: 15px;
+}
+
+.players-online span {
+    color: #4ecdc4;
+    font-weight: bold;
+}
+
+.cancel-search-btn {
+    background-color: #e94560;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
 /* Chess container */
 .chess-container {
     display: flex;

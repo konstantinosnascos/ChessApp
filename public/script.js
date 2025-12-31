@@ -41,6 +41,7 @@ let lastMove = null;
 let waitingForRematch = false;
 let boardFlipped = false;
 let gameOver = false;
+let isSearching = false;
 
 // Multiplayer state
 let socket = null;
@@ -82,6 +83,9 @@ const gameOverMenu = document.getElementById('game-over-menu');
 const gameOverMessage = document.getElementById('game-over-message');
 const rematchBtn = document.getElementById('rematch-btn');
 const newGameBtn = document.getElementById('new-game-btn');
+const findGameBtn = document.getElementById('find-game-btn');
+const queueStatus = document.getElementById('queue-status');
+const playersOnline = document.querySelector('#players-online span');
 
 // Initialize the game
 function initGame() {
@@ -1202,6 +1206,53 @@ socket = io(serverUrl);
     socket.on('error', (data) => {
         showMessage(data.message);
     });
+
+    socket.on('online-count', (count) => {
+        if (playersOnline) {
+            playersOnline.textContent = count;
+        }
+    });
+
+    //  Game found through matchmaking
+    socket.on('game-found', (data) => {
+        gameId = data.gameId;
+        myColor = data.color;
+        isMultiplayer = true;
+        isMyTurn = myColor === 'white';
+        gameOver = false;
+        boardFlipped = myColor === 'black';
+        isSearching = false;
+        
+        // Reset search button
+        findGameBtn.textContent = 'Hitta motståndare';
+        findGameBtn.classList.remove('searching');
+        queueStatus.style.display = 'none';
+        
+        hideMultiplayerMenu();
+        hideGameOverMenu();
+        showMessage(data.message);
+        
+        initGame();
+        updateRowColLabels();
+        updateMultiplayerStatus();
+    });
+    
+    // Search cancelled
+    socket.on('search-cancelled', () => {
+        isSearching = false;
+        findGameBtn.textContent = 'Hitta motståndare';
+        findGameBtn.classList.remove('searching');
+        queueStatus.style.display = 'none';
+    });
+
+     // Waiting for opponent
+    socket.on('waiting-for-opponent', (data) => {
+        isSearching = true;
+        findGameBtn.textContent = 'Avbryt sökning';
+        findGameBtn.classList.add('searching');
+        queueStatus.style.display = 'block';
+        queueStatus.textContent = data.message;
+    });
     
     socket.on('game-created', (data) => {
     gameId = data.gameId;
@@ -1657,10 +1708,8 @@ gameCodeInput.addEventListener('keypress', (e) => {
 });
 
 // Auto-connect to server when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, connecting to server...');
-    connectToServer();
-});
+console.log('Connecting to server...');
+connectToServer();
 
 // ==================== GAME OVER MENU ====================
 
@@ -1760,3 +1809,19 @@ if (createGameBtn) {
         console.log('Socket connected:', socket?.connected);
     });
 }
+
+// Find game button
+findGameBtn.addEventListener('click', () => {
+    if (!socket || !socket.connected) {
+        showMessage('Inte ansluten till servern');
+        return;
+    }
+    
+    if (isSearching) {
+        // Cancel search
+        socket.emit('cancel-search');
+    } else {
+        // Start search
+        socket.emit('find-game');
+    }
+});
