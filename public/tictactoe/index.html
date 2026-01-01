@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-i-rad</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main>
+        <h1>Välkommen till 3-i-rad!</h1>
+        <section aria-label="Spelinformation">
+            <p id="status">Spelare X:s tur</p>   
+        </section>
+        
+        <section aria-label="Spelplan">
+            <div class="board" role="grid" aria-label="Spelplan för 3 i rad">
+                <button class="cell" data-index="0" aria-label="Ruta 1"></button> 
+                <button class="cell" data-index="1" aria-label="Ruta 2"></button>
+                <button class="cell" data-index="2" aria-label="Ruta 3"></button>
+                <button class="cell" data-index="3" aria-label="Ruta 4"></button>
+                <button class="cell" data-index="4" aria-label="Ruta 5"></button>
+                <button class="cell" data-index="5" aria-label="Ruta 6"></button>
+                <button class="cell" data-index="6" aria-label="Ruta 7"></button>
+                <button class="cell" data-index="7" aria-label="Ruta 8"></button>
+                <button class="cell" data-index="8" aria-label="Ruta 9"></button>
+                </div>
+        </section>
+
+        <button id="reset-btn">Starta om spelet</button>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

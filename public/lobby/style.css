@@ -1,0 +1,101 @@
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        main {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #eee;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .games-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .game-card {
+            background-color: #16213e;
+            border: 2px solid #0f3460;
+            border-radius: 15px;
+            padding: 30px;
+            width: 200px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: #e94560;
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .game-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .game-players {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .game-card.coming-soon {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .game-card.coming-soon .game-name::after {
+            content: ' (Kommer snart)';
+            font-size: 0.7rem;
+            color: #e94560;
+        }
+
+        .stats {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #16213e;
+            border-radius: 10px;
+        }
+
+        .stats p {
+            color: #888;
+        }
+
+        .stats span {
+            color: #4ecdc4;
+            font-weight: bold;
+        }

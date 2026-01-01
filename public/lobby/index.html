@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelportal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <h1>Spelportal</h1>
+        <p class="subtitle">Välj ett spel att spela</p>
+
+        <div class="games-grid">
+            <a href="/chess" class="game-card">
+                <span class="game-icon">♟️</span>
+                <div class="game-name">Schack</div>
+                <div class="game-players">2 spelare</div>
+            </a>
+
+            <a href="/tictactoe" class="game-card">
+                <span class="game-icon">⭕</span>
+                <div class="game-name">3-i-rad</div>
+                <div class="game-players">2 spelare</div>
+            </a>
+        </div>
+
+        <div class="stats">
+            <p>Spelare online: <span id="online-count">0</span></p>
+        </div>
+    </main>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const serverUrl = window.location.origin;
+        const socket = io(serverUrl);
+
+        socket.on('online-stats', (stats) => {
+            document.getElementById('online-count').textContent = stats.totalOnline;
+        });
+
+        socket.on('online-count', (count) => {
+            document.getElementById('online-count').textContent = count;
+        });
+    </script>
+</body>
+</html>

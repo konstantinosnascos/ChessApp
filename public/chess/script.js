@@ -1207,16 +1207,19 @@ socket = io(serverUrl);
         showMessage(data.message);
     });
 
-    socket.on('online-count', (count) => {
-        if (playersOnline) {
-            playersOnline.textContent = count;
-        }
-    });
+    socket.on('online-stats', (stats) => {
+    if (playersOnline) {
+        playersOnline.textContent = stats.totalOnline;
+    }
+    // visa köstatus
+    console.log('Queue stats:', stats.queues);
+    console.log('Active games:', stats.activeGames);
+});
 
     //  Game found through matchmaking
     socket.on('game-found', (data) => {
         gameId = data.gameId;
-        myColor = data.color;
+        myColor = data.role;
         isMultiplayer = true;
         isMyTurn = myColor === 'white';
         gameOver = false;
@@ -1256,7 +1259,7 @@ socket = io(serverUrl);
     
     socket.on('game-created', (data) => {
     gameId = data.gameId;
-    myColor = data.color;
+    myColor = data.role;
     isMultiplayer = true;
     isMyTurn = myColor === 'white';
     gameOver = false;
@@ -1264,9 +1267,8 @@ socket = io(serverUrl);
         
          hideMultiplayerMenu();
     hideGameOverMenu();
-    showMessage(`Spel skapat! Kod: ${gameId}\nDela koden med din motståndare.`);
-    showGameCode(gameId);
-    
+    showMessage(`Spel skapat! Kod: ${gameId}\nVäntar på spelare... 
+        (${data.config.currentPlayers}/${data.config.maxPlayers})`);    showGameCode(gameId);
     initGame();
     updateRowColLabels();
     updateMultiplayerStatus();
@@ -1278,7 +1280,7 @@ socket = io(serverUrl);
 
 socket.on('rematch-waiting', (data) => {
     waitingForRematch = true;
-    gameOverMessage.textContent = data.message;
+    gameOverMessage.textContent = `Väntar på andra spelare... (${data.accepted}/${data.needed})`;
     gameOverMessage.classList.add('waiting-rematch');
     rematchBtn.disabled = true;
     rematchBtn.textContent = 'Väntar...';
@@ -1286,7 +1288,7 @@ socket.on('rematch-waiting', (data) => {
 
 socket.on('rematch-started', (data) => {
     // Update color
-    myColor = data.color;
+    myColor = data.role;
     isMyTurn = myColor === 'white';
     waitingForRematch = false;
     
@@ -1312,7 +1314,7 @@ socket.on('rematch-declined', (data) => {
     
     socket.on('game-joined', (data) => {
     gameId = data.gameId;
-    myColor = data.color;
+    myColor = data.role;
     isMultiplayer = true;
     isMyTurn = myColor === 'white';
     gameOver = false;
@@ -1332,10 +1334,13 @@ socket.on('rematch-declined', (data) => {
     updateMultiplayerStatus();
 });
     
-    socket.on('opponent-joined', (data) => {
-        showMessage(data.message);
-        updateMultiplayerStatus();
-    });
+    socket.on('player-joined', (data) => {
+    showMessage(`Spelare ${data.role} anslöt! (${data.playerCount}/${data.maxPlayers})`);
+    if (data.gameStarted) {
+        isMyTurn = myColor === data.currentPlayer;
+    }
+    updateMultiplayerStatus();
+});
     
     socket.on('opponent-move', (moveData) => {
     // Set isMyTurn BEFORE executing so renderBoard enables squares
@@ -1349,9 +1354,13 @@ socket.on('rematch-declined', (data) => {
         updateMultiplayerStatus();
     });
     
-    socket.on('opponent-disconnected', () => {
-        showMessage('Motståndaren kopplade ifrån');
-    });
+    socket.on('player-disconnected', (data) => {
+    showMessage(`Spelare ${data.disconnectedPlayer} kopplade ifrån`);
+    if (data.playersRemaining < 2) {
+        gameOver = true;
+        isMultiplayer = false;
+    }
+});
     
     socket.on('opponent-resigned', () => {
         showMessage('Motståndaren gav upp! Du vann!');
@@ -1385,14 +1394,13 @@ socket.on('rematch-declined', (data) => {
 // Create new game
 function createGame() {
     if (socket && socket.connected) {
-        socket.emit('create-game');
-    }
+socket.emit('create-game', { gameType: 'chess' });    }
 }
 
 // Join existing game
 function joinGame(code) {
     if (socket && socket.connected) {
-        socket.emit('join-game', code);
+        socket.emit('join-game', { gameId: code });
     }
 }
 
@@ -1822,6 +1830,6 @@ findGameBtn.addEventListener('click', () => {
         socket.emit('cancel-search');
     } else {
         // Start search
-        socket.emit('find-game');
+        socket.emit('find-game', { gameType: 'chess' });
     }
 });
