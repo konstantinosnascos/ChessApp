@@ -649,3 +649,17 @@ h1 {
         font-size: 3rem;
     }
 }
+
+.back-link {
+    margin-top: 30px;
+}
+
+.back-link a {
+    color: #888;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.back-link a:hover {
+    color: #4ecdc4;
+}

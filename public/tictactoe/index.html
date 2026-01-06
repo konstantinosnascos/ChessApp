@@ -9,10 +9,44 @@
 
 <body>
     <main>
-        <h1>Välkommen till 3-i-rad!</h1>
+        <h1>3-i-rad</h1>
+        
         <section aria-label="Spelinformation">
             <p id="status">Spelare X:s tur</p>   
         </section>
+
+        <!-- Multiplayer Menu -->
+        <div id="multiplayer-menu" class="multiplayer-menu">
+            <h2>Flerspelarläge</h2>
+            
+            <div class="menu-section">
+                <button id="create-game-btn" class="menu-btn">Skapa nytt spel</button>
+            </div>
+            
+            <div class="menu-section">
+                <button id="find-game-btn" class="menu-btn matchmaking">Hitta motståndare</button>
+                <p id="queue-status" class="queue-status" style="display: none;">
+                    Söker motståndare...
+                </p>
+                <p id="players-online" class="players-online">Spelare online: <span>0</span></p>
+            </div>
+            
+            <div class="menu-section">
+                <p>Eller anslut till ett spel:</p>
+                <input type="text" id="game-code-input" placeholder="Ange spelkod" maxlength="6">
+                <button id="join-game-btn" class="menu-btn">Anslut</button>
+            </div>
+            
+            <div class="menu-section">
+                <button id="local-game-btn" class="menu-btn secondary">Spela lokalt</button>
+            </div>
+        </div>
+
+        <!-- Game Code Display -->
+        <div id="game-code-display" class="game-code-display" style="display: none;">
+            <p>Spelkod: <span id="game-code"></span></p>
+            <button id="copy-code-btn">Kopiera</button>
+        </div>
         
         <section aria-label="Spelplan">
             <div class="board" role="grid" aria-label="Spelplan för 3 i rad">
@@ -25,12 +59,29 @@
                 <button class="cell" data-index="6" aria-label="Ruta 7"></button>
                 <button class="cell" data-index="7" aria-label="Ruta 8"></button>
                 <button class="cell" data-index="8" aria-label="Ruta 9"></button>
-                </div>
+            </div>
         </section>
 
-        <button id="reset-btn">Starta om spelet</button>
+        <div class="controls">
+            <button id="reset-btn">Starta om spelet</button>
+        </div>
+        
+        <div id="multiplayer-controls" class="multiplayer-controls" style="display: none;">
+            <button id="resign-btn">Ge upp</button>
+        </div>
+        
+        <div id="game-over-menu" class="game-over-menu" style="display: none;">
+            <h3 id="game-over-message">Spelet slut</h3>
+            <button id="rematch-btn" class="menu-btn">Ny match (byt sida)</button>
+            <button id="new-game-btn" class="menu-btn secondary">Tillbaka till menyn</button>
+        </div>
+
+        <div class="back-link">
+            <a href="/">← Tillbaka till spelportalen</a>
+        </div>
     </main>
 
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
